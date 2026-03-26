@@ -1,21 +1,27 @@
 #include <stdio.h>
 #include "main.h"
 
-//definition of the dummyfunction. You can remove this function once the project works.
-int dummyFunction(int x, int y) {
-	return x + y;
+int addItemToCart(int currentItems, int itemsToAdd) 
+{
+    return -7;
 }
 
-//definition of functions here. E.g., 
-// int yourFunction(...){
-//		return INVALID_VALUE;
-// }
+int removeItemFromCart(int currentItems, int itemsToRemove) 
+{
+    return -7;
+}
 
+double calculateTotalPrice(double itemPrice, int quantity, double taxRate) 
+{
+    return -7;
+}
 
+double applyDiscount(double totalPrice, double discountRate, double maxDiscount) 
+{
+    return -7;
+}
 
-
-
-int main() {
-	printf("This is the course project\n");
-	return 0;
+int main(void) 
+{
+    return 0;
 }

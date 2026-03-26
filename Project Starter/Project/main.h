@@ -4,16 +4,14 @@ extern "C" {
 #endif
 
 	
-	//this is the declaration of a dummy function to make sure the compiling and linking does not complain. You can remove this function once your project works.
-	int dummyFunction(int, int);
-	// Declarations for function(s) here. E.g.,
-	//int yourFunction(...);
+#define INVALID_VALUE -1
+#define EMPTY_CART 0
+
+int addItemToCart(int currentItems, int itemsToAdd);
+int removeItemFromCart(int currentItems, int itemsToRemove);
+double calculateTotalPrice(double itemPrice, int quantity, double taxRate);
+double applyDiscount(double totalPrice, double discountRate, double maxDiscount);
 
 #if defined(__cplusplus)
 }
 #endif
-#pragma once
-
-//Declarations of constant here. E.g., 
-//define INVALID_VALUE -1
-//define STR_VALUE "Hello, World!"
