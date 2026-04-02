@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include "main.h"
-
+//  Function to add items to cart 
 int addItemToCart(int currentItems, int itemsToAdd) 
 {
-    return -7;
+    if (currentItems < 0 || itemsToAdd < 0)                // returns INVALID_VALUE (-1) if inputs are negative
+        return INVALID_VALUE;
+    return currentItems + itemsToAdd;                      //Returns new total item count
 }
+
+
 
 int removeItemFromCart(int currentItems, int itemsToRemove) 
 {
