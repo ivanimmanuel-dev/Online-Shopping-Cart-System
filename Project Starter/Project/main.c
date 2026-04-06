@@ -16,6 +16,14 @@ int removeItemFromCart(int currentItems, int itemsToRemove)
             return EMPTY_CART;
         return currentItems - itemsToRemove;                    // returns new number of items present in the cart after removing items
 }
+// Function 3 - Calculate total price with tax
+double calculateTotalPrice(double itemPrice, int quantity, double taxRate)
+{
+    if (itemPrice < 0 || quantity < 0 || taxRate < 0)
+        return INVALID_VALUE;
+
+    return (itemPrice * quantity) * (1.0 + taxRate);
+}
 
 double calculateTotalPrice(double itemPrice, int quantity, double taxRate) 
 {
