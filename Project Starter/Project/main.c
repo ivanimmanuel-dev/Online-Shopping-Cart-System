@@ -25,11 +25,6 @@ double calculateTotalPrice(double itemPrice, int quantity, double taxRate)
     return (itemPrice * quantity) * (1.0 + taxRate);
 }
 
-double calculateTotalPrice(double itemPrice, int quantity, double taxRate) 
-{
-    return -7;
-}
-
 double applyDiscount(double totalPrice, double discountRate, double maxDiscount) 
 {
     return -7;
