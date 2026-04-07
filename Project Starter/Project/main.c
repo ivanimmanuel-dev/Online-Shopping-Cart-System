@@ -19,19 +19,13 @@ int removeItemFromCart(int currentItems, int itemsToRemove)
 
 // Function 3 - Calculate total price with tax
 double calculateTotalPrice(double itemPrice, int quantity, double taxRate)
-// Function 3 - Calculate total price with tax
-double calculateTotalPrice(double itemPrice, int quantity, double taxRate)
 {
     if (itemPrice < 0 || quantity < 0 || taxRate < 0)
         return INVALID_VALUE;
-    if (itemPrice < 0 || quantity < 0 || taxRate < 0)
-        return INVALID_VALUE;
 
     return (itemPrice * quantity) * (1.0 + taxRate);
 }
 
-    return (itemPrice * quantity) * (1.0 + taxRate);
-}
 // Function 4 - Apply discount with max limit
 double applyDiscount(double totalPrice, double discountRate, double maxDiscount)
 {
