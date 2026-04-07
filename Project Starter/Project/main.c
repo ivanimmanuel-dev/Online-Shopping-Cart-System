@@ -168,10 +168,200 @@ void showReceipt(const CartItem cart[], int cartSize, const Product catalog[], i
 }
 
 /*=========================================================================
+ *                              MAIN Loop
+ *=========================================================================*/
+
+void runShoppingLoop(void)
+{
+    // Product Catalog and Shopping Cart initialization
+    Product catalog[MAX_CATALOG_ITEMS] = { {1, "Wireless Headphones", 79.99, 10},{2, "Wired Mouse", 34.99, 15},{3, "USB-C Hub", 49.99, 20},{4, "Mechanical Keyboard", 99.99, 5},{5, "Webcam HD", 89.99, 12},{6, "Mouse Pad XL", 19.99, 25},{7, "LED Desk Lamp", 44.99,  15},{8, "Smartphone Stand", 14.99, 30} };
+    CartItem cart[MAX_CART_SLOTS];
+    int cartSize = 0;
+    memset(cart, 0, sizeof(cart)); // initialize cart to empty
+    int choice;
+    int running = 1; // flag to control the main loop
+    printHeader();
+    printf("  Welcome to OSC! Use the menu below to shop.\n");
+    while (running) // main shopping loop
+    {
+        printf("\n  MENU\n");
+        printSeparator();
+        printf("  [1] Browse products\n");
+        printf("  [2] Add item(s) to cart\n");
+        printf("  [3] Remove item(s) from cart\n");
+        printf("  [4] View cart\n");
+        printf("  [5] Checkout (no discount)\n");
+        printf("  [6] Checkout (with 10%% loyalty discount)\n");
+        printf("  [0] Quit\n");
+        printSeparator();
+        printf("  Enter choice: ");
+        if (scanf_s("%d", &choice) != 1) // if input is not a valid integer, flushes the input and prompts again
+        {
+            while (getchar() != '\n');
+            printf("  Invalid input. Please enter a number.\n");
+            continue;
+        }
+        switch (choice) // handles the user's menu choice and calls the appropriate functions based on the selection
+        {
+        case 1: // displays the product catalog
+            showCatalog(catalog, MAX_CATALOG_ITEMS);
+            break;
+        case 2: // allows the user to add items to their cart, checking for valid input and stock availability
+        {
+            showCatalog(catalog, MAX_CATALOG_ITEMS);
+            int pid, qty;
+            printf("  Enter product ID: ");
+            if (scanf_s("%d", &pid) != 1) // if input is not a valid integer, flushes the input and breaks out of the case
+            {
+                while (getchar() != '\n');
+                break;
+            }
+            int pi = findProduct(catalog, MAX_CATALOG_ITEMS, pid);
+            if (pi < 0) // if product ID is not found in the catalog, informs the user and breaks out of the case
+            {
+                printf("  Product not found.\n");
+                break;
+            }
+            printf("  Enter quantity: ");
+            if (scanf_s("%d", &qty) != 1) // if quantity is not a valid integer, flushes the input and breaks out of the case
+            {
+                while (getchar() != '\n');
+                break;
+            }
+            if (qty <= 0) // if quantity is not greater than 0, informs the user and breaks out of the case
+            {
+                printf("  Quantity must be greater than 0.\n");
+                break;
+            }
+            if (qty > catalog[pi].stock) // if requested quantity exceeds available stock, informs the user of the available stock and breaks out of the case
+            {
+                printf("  Only %d in stock. Enter a lower quantity.\n", catalog[pi].stock);
+                break;
+            }
+            int slot = findCartSlot(cart, cartSize, pid);
+            if (slot >= 0) // if the product is already in the cart, adds to the existing quantity in that slot
+            {
+                int newQty = addItemToCart(cart[slot].quantity, qty);
+                if (newQty == INVALID_VALUE) // if the new quantity calculation returns an invalid value, informs the user and breaks out of the case
+                {
+                    printf("  Error adding items.\n");
+                    break;
+                }
+                cart[slot].quantity = newQty;
+            }
+            else // if the product is not already in the cart, creates a new cart item in the next available slot
+            {
+                if (cartSize >= MAX_CART_SLOTS)
+                {
+                    printf("  Cart is full.\n");
+                    break;
+                }
+                cart[cartSize].productId = pid;
+                cart[cartSize].quantity = addItemToCart(0, qty);
+                cartSize++;
+            }
+            catalog[pi].stock = removeItemFromCart(catalog[pi].stock, qty); // reduces the stock in the catalog by the quantity added to the cart
+            printf("  Added %dx %s to your cart.\n", qty, catalog[pi].name);
+            break;
+        }
+        case 3: // allows the user to remove items from their cart, checking for valid input and ensuring the product is in the cart
+        {
+            showCart(cart, cartSize, catalog, MAX_CATALOG_ITEMS);
+            if (cartSize == 0) // if the cart is empty, informs the user and breaks out of the case
+            {
+                break;
+            }
+            int pid, qty;
+            printf("  Enter product ID to remove: ");
+            if (scanf_s("%d", &pid) != 1) // if input is not a valid integer, flushes the input and breaks out of the case
+            {
+                while (getchar() != '\n');
+                break;
+            }
+            int slot = findCartSlot(cart, cartSize, pid);
+            if (slot < 0) // if the product ID is not found in the cart, informs the user and breaks out of the case
+            {
+                printf("  That product is not in your cart.\n");
+                break;
+            }
+            int pi = findProduct(catalog, MAX_CATALOG_ITEMS, pid);
+            printf("  How many to remove (current: %d)? ", cart[slot].quantity);
+            if (scanf_s("%d", &qty) != 1) // if input is not a valid integer, flushes the input and breaks out of the case
+            {
+                while (getchar() != '\n');
+                break;
+            }
+            if (qty <= 0) // if quantity to remove is not greater than 0, informs the user and breaks out of the case
+            {
+                printf("  Quantity must be greater than 0.\n");
+                break;
+            }
+            int newQty = removeItemFromCart(cart[slot].quantity, qty);
+            if (newQty == INVALID_VALUE) // if the new quantity calculation returns an invalid value, informs the user and breaks out of the case
+            {
+                printf("  Invalid quantity.\n");
+                break;
+            }
+            /* restore stock */
+            int actualRemoved = (qty > cart[slot].quantity) ? cart[slot].quantity : qty; // calculates the actual number of items removed and restores that quantity back to the catalog stock
+            if (pi >= 0) // if the product is found in the catalog, adds the removed quantity back to the stock
+            {
+                catalog[pi].stock = addItemToCart(catalog[pi].stock, actualRemoved);
+            }
+            if (newQty == EMPTY_CART) // if all items of that product are removed from the cart, removes the cart item entirely by shifting the remaining items down
+            {
+                for (int i = slot; i < cartSize - 1; i++)
+                {
+                    cart[i] = cart[i + 1];
+                }
+                cartSize--;
+                printf("  Item removed from cart.\n");
+            }
+            else // if some items remain after removal, updates the quantity in the cart and informs the user of the remaining quantity
+            {
+                cart[slot].quantity = newQty;
+                printf("  Removed %d item(s). %d remaining in cart.\n", actualRemoved, newQty);
+            }
+            break;
+        }
+        case 4: // displays the current contents of the cart
+            showCart(cart, cartSize, catalog, MAX_CATALOG_ITEMS);
+            break;
+        case 5: // proceeds to checkout without applying the loyalty discount, generates a receipt, and then clears the cart
+            showReceipt(cart, cartSize, catalog, MAX_CATALOG_ITEMS, 0);
+            if (cartSize > 0)
+            {
+                cartSize = 0;
+                memset(cart, 0, sizeof(cart));
+                printf("  Thank you for your purchase!\n");
+            }
+            break;
+        case 6: // proceeds to checkout with applying the loyalty discount, generates a receipt, and then clears the cart
+            showReceipt(cart, cartSize, catalog, MAX_CATALOG_ITEMS, 1);
+            if (cartSize > 0)
+            {
+                cartSize = 0;
+                memset(cart, 0, sizeof(cart));
+                printf("  Thank you for your purchase!\n");
+            }
+            break;
+        case 0: // exits the program with a goodbye message
+            printf("\n  Goodbye! Visit again for more great deals.\n\n");
+            running = 0;
+            break;
+        default: // if the user enters an invalid menu option, informs the user and prompts again
+            printf("  Invalid option. Choose options 0-6.\n");
+            break;
+        }
+    }
+}
+
+/*=========================================================================
  *                              MAIN Function
  *=========================================================================*/
 
 int main(void) // entry point of the program, calls the main shopping loop function
 {
+    runShoppingLoop(); // starts the shopping cart system
 	return 0; // returns 0 to indicate successful execution
 }
