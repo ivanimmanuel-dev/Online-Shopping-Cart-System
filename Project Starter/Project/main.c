@@ -56,7 +56,7 @@ double applyDiscount(double totalPrice, double discountRate, double maxDiscount)
 }
 
 /*=========================================================================
- *                              GUI Functions
+ *                              TUI Functions
  *=========================================================================*/
 
 void printSeparator(void) // prints a separator line for better readability
