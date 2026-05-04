@@ -22,3 +22,8 @@
        └─ UnitTestDriver.cpp    # Unit tests for all functions
 
 └─ README.md
+
+
+## License
+
+This project is open source. Feel free to use and modify it.
